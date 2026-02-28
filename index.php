@@ -12,4 +12,3 @@ if ($_SESSION['role'] == 'peminjam') {
 } elseif ($_SESSION['role'] == 'petugas') {
     header("Location: petugas/dashboard.php");
 }
-

@@ -1,62 +1,63 @@
 <?php
 session_start();
+include '../config/database.php';
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../auth/login.php");
-    exit;
+    header("Location: ../auth/login.php"); exit;
 }
+
+// Statistik
+$total_barang = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM barang"))['total'];
+$total_user   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role != 'admin'"))['total'];
+$pinjam_aktif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM peminjaman WHERE status = 'dipinjam'"))['total'];
+
+// PERBAIKAN: Hanya hitung denda dari transaksi yang sudah 'selesai'
+$total_denda  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM(denda) as total FROM peminjaman WHERE status = 'selesai'"))['total'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Sarpras</title>
+    <title>Admin Panel - Sarpras</title>
     <link rel="stylesheet" href="../assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
-
 <div class="box wide">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <div>
-            <h2 style="margin: 0;">Dashboard Admin</h2>
-            <p style="color: #64748b; margin-top: 5px;">Halo Administrator, <b><?= htmlspecialchars($_SESSION['nama']); ?></b>. Kendalikan sistem sepenuhnya di sini.</p>
+    <div class="dashboard-header">
+        <div class="header-title-group">
+            <span class="badge badge-admin">Administrator</span>
+            <h2>🏰 Dashboard Utama</h2>
+            <p>Selamat datang, <b><?= htmlspecialchars($_SESSION['nama']); ?></b>.</p>
         </div>
-        <span class="badge badge-danger" style="text-transform: uppercase; letter-spacing: 1px; padding: 8px 15px;">Administrator</span>
+        <a href="../auth/logout.php" class="btn btn-logout">🚪 Keluar</a>
     </div>
 
-    <h4 style="margin-bottom: 20px; color: #1e3a8a;">Kontrol Pengguna & Data</h4>
-    <div class="menu-grid" style="margin-bottom: 40px;">
-        <a href="kelola_user.php" class="menu-card" style="border-bottom: 5px solid #3b82f6;">
-            <div style="font-size: 40px; margin-bottom: 15px;">👥</div>
-            <span style="font-weight: 700; display: block; font-size: 1.1rem;">Kelola User</span>
-            <p style="margin: 5px 0 0; font-size: 12px; color: #64748b;">Atur hak akses & role pengguna.</p>
-        </a>
-
-        <a href="laporan.php" class="menu-card" style="border-bottom: 5px solid #10b981;">
-            <div style="font-size: 40px; margin-bottom: 15px;">📄</div>
-            <span style="font-weight: 700; display: block; font-size: 1.1rem;">Laporan Pinjam</span>
-            <p style="margin: 5px 0 0; font-size: 12px; color: #64748b;">Cetak data transaksi & denda.</p>
-        </a>
+    <div class="stats-grid">
+        <div class="stats-card">
+            <small>Total Inventaris</small>
+            <h3><?= $total_barang; ?> Unit</h3>
+        </div>
+        <div class="stats-card">
+            <small>Pengguna Aktif</small>
+            <h3><?= $total_user; ?> Akun</h3>
+        </div>
+        <div class="stats-card">
+            <small>Pinjaman Aktif</small>
+            <h3><?= $pinjam_aktif; ?> Sesi</h3>
+        </div>
+        <div class="stats-card" style="background: #f0fdf4;">
+            <small style="color: #15803d;">Total Kas Denda</small>
+            <h3 style="color: #16a34a;">Rp <?= number_format($total_denda ?? 0, 0, ',', '.'); ?></h3>
+        </div>
     </div>
 
-    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+    <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;">
 
-    <h4 style="margin-bottom: 20px; color: #1e3a8a;">Sistem & Keamanan</h4>
     <div class="menu-grid">
-        <a href="log_semua.php" class="menu-card" style="border-left: 5px solid #6366f1;">
-            <div style="font-size: 24px; margin-bottom: 10px;">🕵️‍♂️</div>
-            <span style="font-weight: 600;">Audit Log</span>
-            <p style="margin: 5px 0 0; font-size: 11px; color: #64748b;">Pantau rekam jejak aktivitas sistem.</p>
-        </a>
-
-        <a href="../auth/logout.php" class="menu-card" style="border-left: 5px solid #ef4444; color: #ef4444;">
-            <div style="font-size: 24px; margin-bottom: 10px;">🚪</div>
-            <span style="font-weight: 600;">Logout</span>
-            <p style="margin: 5px 0 0; font-size: 11px; color: #64748b;">Keluar dari sesi administrator.</p>
-        </a>
+        <a href="barang.php" class="menu-card">📦 Master Barang</a>
+        <a href="kelola_user.php" class="menu-card">👥 Manajemen User</a>
+        <a href="laporan.php" class="menu-card">📄 Laporan Global</a>
+        <a href="log_semua.php" class="menu-card">🕵️ Audit Log</a>
     </div>
 </div>
-
 </body>
 </html>

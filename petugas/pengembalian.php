@@ -8,14 +8,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'petugas') {
     exit;
 }
 
-// Ambil data peminjaman yang statusnya 'menunggu_kembali' 
-// (User sudah klik 'Kembalikan' tapi belum diverifikasi petugas)
 $data = mysqli_query($conn, "
-    SELECT p.*, u.nama, b.nama_barang, b.gambar
+    SELECT p.*, u.nama, b.nama_barang, b.gambar, b.harga_asli
     FROM peminjaman p
     JOIN users u ON p.user_id = u.id
     JOIN barang b ON p.barang_id = b.id
-    WHERE p.status = 'menunggu_kembali'
+    WHERE p.status = 'menunggu_kembali' 
     ORDER BY p.id DESC
 ");
 ?>
@@ -74,16 +72,26 @@ $data = mysqli_query($conn, "
                             <?= date('d M Y', strtotime($p['tanggal_kembali'])); ?>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 8px; justify-content: center;">
+                            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
                                 <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=bagus" 
-                                   class="btn" style="background: #10b981; color: white; padding: 8px 12px; font-size: 12px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                                   ✅ Kondisi Baik
+                                class="btn" style="background: #10b981; color: white; width: 180px; font-size: 11px; padding: 6px;">
+                                ✅ Kondisi Baik (Gratis)
                                 </a>
                                 
-                                <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=rusak" 
-                                   class="btn" style="background: #ef4444; color: white; padding: 8px 12px; font-size: 12px; border-radius: 8px; text-decoration: none; font-weight: 600;"
-                                   onclick="return confirm('Peringatan: Barang rusak akan dikenakan denda tambahan Rp 50.000. Lanjutkan?')">
-                                   ⚠️ Rusak
+                                <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=ringan" 
+                                class="btn" style="background: #f59e0b; color: white; width: 180px; font-size: 11px; padding: 6px;">
+                                ⚠️ Rusak Ringan (Rp 20rb)
+                                </a>
+
+                                <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=sedang" 
+                                class="btn" style="background: #ef4444; color: white; width: 180px; font-size: 11px; padding: 6px;">
+                                ⚠️ Rusak Sedang (Rp 50rb)
+                                </a>
+
+                                <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=berat" 
+                                class="btn" style="background: #1e293b; color: white; width: 180px; font-size: 11px; padding: 6px;"
+                                onclick="return confirm('Denda Berat: User harus membayar seharga barang (Rp <?= number_format($p['harga_asli']); ?>). Lanjutkan?')">
+                                💀 Rusak Berat (Ganti Alat)
                                 </a>
                             </div>
                         </td>

@@ -13,12 +13,14 @@ if (isset($_POST['login'])) {
 
     if ($user && password_verify($pass, $user['password'])) {
 
+        // Set Session dari variabel $user
         $_SESSION['id']   = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['nama'] = $user['nama'];
 
-$pesan_log = $_SESSION['nama'] . " (".$_SESSION['role'].") berhasil login ke sistem.";
-mysqli_query($conn, "INSERT INTO log_aktivitas (user_id, pesan) VALUES ('{$user['id']}', '$pesan_log')");
+        // Ganti bagian ini di login.php
+    $pesan_log = $user['nama'] . " (" . $user['role'] . ") berhasil login.";
+    mysqli_query($conn, "INSERT INTO log_aktivitas (user_id, pesan) VALUES ('" . $user['id'] . "', '$pesan_log')");
 
         if ($user['role'] == 'admin') {
             header("Location: ../admin/dashboard.php");
@@ -29,11 +31,9 @@ mysqli_query($conn, "INSERT INTO log_aktivitas (user_id, pesan) VALUES ('{$user[
         }
         exit;
     }
-        $error = "Email atau password salah!";
-    }
-
+    $error = "Email atau password salah!";
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -47,11 +47,11 @@ mysqli_query($conn, "INSERT INTO log_aktivitas (user_id, pesan) VALUES ('{$user[
 
 <div class="box">
     <h2>Login Sarpras</h2>
-    <p>Masuk untuk mengelola peminjaman barang</p>
+    <p>Masuk untuk mengelola Peminjaman Barang</p>
 
     <?php if ($error != "") : ?>
-        <div class="badge badge-danger" style="display: block; margin-bottom: 20px; padding: 10px;">
-            <?= $error; ?>
+        <div style="background: #fee2e2; color: #ef4444; padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 600; border: 1px solid #fecaca;">
+            ⚠️ <?= $error; ?>
         </div>
     <?php endif; ?>
 

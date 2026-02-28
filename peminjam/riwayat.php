@@ -2,74 +2,99 @@
 session_start();
 include '../config/database.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 'peminjam') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'peminjam') {
     header("Location: ../auth/login.php");
     exit;
 }
 
-$data = mysqli_query($conn, "
-    SELECT p.*, b.nama_barang
-    FROM peminjaman p
-    JOIN barang b ON p.barang_id = b.id
-    WHERE p.user_id = {$_SESSION['id']}
-    ORDER BY p.id DESC
-");
+$u_id = $_SESSION['id'];
+$data = mysqli_query($conn, "SELECT p.*, b.nama_barang 
+                              FROM peminjaman p 
+                              JOIN barang b ON p.barang_id = b.id 
+                              WHERE p.user_id = '$u_id' 
+                              ORDER BY p.id DESC");
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Riwayat Peminjaman</title>
+    <meta charset="UTF-8">
+    <title>Riwayat Pinjam - Sarpras</title>
     <link rel="stylesheet" href="../assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; background: white; }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #e2e8f0; vertical-align: middle; font-size: 14px; }
+        th:first-child, td:first-child { text-align: left; width: 30%; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 50px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .badge-menunggu { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-dipinjam { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-kembali { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .badge-selesai { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-ditolak { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
+        .btn-action { font-size: 11px; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: 700; display: inline-block; }
+    </style>
 </head>
 <body class="dashboard-page">
-
-<div class="box wide"> <h2>Riwayat Peminjaman</h2>
+<div class="box wide">
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="margin:0;">📋 Riwayat & Status Pinjaman</h2>
+    </div>
 
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>Barang</th>
-                    <th>Lama</th>
-                    <th>Total Sewa</th>
-                    <th>Denda</th> <th>Status</th>
-                    <th>Aksi</th>
+                    <th>Informasi Barang</th>
+                    <th style="width: 15%;">Durasi</th>
+                    <th style="width: 15%;">Total Denda</th>
+                    <th style="width: 20%;">Status</th>
+                    <th style="width: 20%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-            <?php while ($r = mysqli_fetch_assoc($data)) { ?>
-            <tr>
-                <td><strong><?= htmlspecialchars($r['nama_barang']); ?></strong></td>
-                <td><?= $r['lama_pinjam']; ?> hari</td>
-                <td>Rp <?= number_format($r['total_harga'], 0, ',', '.'); ?></td>
-                <td style="color: red; font-weight: bold;">
-                    <?= ($r['denda'] > 0) ? "Rp " . number_format($r['denda'], 0, ',', '.') : "-"; ?>
-                </td>
-                <td>
-                    <span class="badge badge-menunggu"><?= str_replace('_', ' ', $r['status']); ?></span>
-                </td>
-                <td>
-                    <?php if ($r['status'] == 'dipinjam') { ?>
-                        <a class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;"
-                        href="ajukan_kembali.php?id=<?= $r['id']; ?>"
-                        onclick="return confirm('Ajukan pengembalian barang?')">
-                        Kembalikan
-                        </a>
-                    <?php } elseif ($r['status'] == 'selesai') { ?>
-                        <a class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" href="../struk.php?id=<?= $r['id']; ?>" target="_blank">Struk</a>
-                    <?php } ?>
-                </td>
-            </tr>
-            <?php } ?>
+                <?php if(mysqli_num_rows($data) > 0): ?>
+                    <?php while ($r = mysqli_fetch_assoc($data)): ?>
+                    <tr>
+                        <td>
+                            <strong><?= htmlspecialchars($r['nama_barang']); ?></strong>
+                            <div style="font-size: 11px; color: #64748b;"><?= $r['jumlah']; ?> Unit</div>
+                        </td>
+                        <td><?= $r['lama_pinjam']; ?> Hari</td>
+                        <td style="font-weight: 700; color: <?= ($r['denda'] > 0) ? '#ef4444' : '#64748b'; ?>">
+                            <?= ($r['denda'] > 0) ? "Rp ".number_format($r['denda'], 0, ',', '.') : "-"; ?>
+                        </td>
+                        <td>
+                            <?php 
+                                $status = $r['status'];
+                                $class = 'badge-menunggu';
+                                if($status == 'dipinjam') $class = 'badge-dipinjam';
+                                elseif($status == 'menunggu_kembali') $class = 'badge-kembali';
+                                elseif($status == 'selesai') $class = 'badge-selesai';
+                                elseif($status == 'ditolak') $class = 'badge-ditolak';
+                            ?>
+                            <span class="badge <?= $class; ?>">
+                                <?= str_replace('_', ' ', $status); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php if ($status == 'menunggu_pinjam'): ?>
+                                <a href="../struk.php?id=<?= $r['id']; ?>" class="btn-action" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">🖨️ Struk</a>
+                            <?php elseif ($status == 'dipinjam'): ?>
+                                <a href="ajukan_kembali.php?id=<?= $r['id']; ?>" class="btn-action" style="background: #3b82f6; color: white;" onclick="return confirm('Kembalikan barang ini?')">🔄 Kembalikan</a>
+                            <?php elseif ($status == 'selesai' || $status == 'ditolak'): ?>
+                                <a href="../struk.php?id=<?= $r['id']; ?>" class="btn-action" style="background: #f1f5f9; color: #475569;">📄 Detail</a>
+                            <?php else: ?>
+                                <small style="color: #94a3b8;">Sedang diproses</small>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr><td colspan="5">Belum ada data peminjaman.</td></tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
-
-    <div style="margin-top: 20px;">
-        <a href="dashboard.php" class="btn btn-outline">⬅ Kembali ke Dashboard</a>
-    </div>
+    <div style="margin-top: 30px;"><a href="dashboard.php" class="btn btn-outline">⬅ Dashboard</a></div>
 </div>
-
 </body>
 </html>

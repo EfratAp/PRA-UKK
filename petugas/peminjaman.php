@@ -2,23 +2,19 @@
 session_start();
 include '../config/database.php';
 
-// Proteksi: Hanya petugas yang bisa akses
+// Proteksi akses
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'petugas') {
     header("Location: ../auth/login.php");
     exit;
 }
 
-// Ambil data peminjaman yang masih menunggu persetujuan
-$data = mysqli_query($conn, "
-    SELECT p.*, u.nama, b.nama_barang, b.gambar
-    FROM peminjaman p
-    JOIN users u ON p.user_id = u.id
-    JOIN barang b ON p.barang_id = b.id
-    WHERE p.status = 'menunggu_pinjam'
-    ORDER BY p.id ASC
-");
+$data = mysqli_query($conn, "SELECT p.*, u.nama, b.nama_barang, b.gambar 
+                              FROM peminjaman p 
+                              JOIN users u ON p.user_id = u.id 
+                              JOIN barang b ON p.barang_id = b.id 
+                              WHERE p.status = 'menunggu_pinjam' 
+                              ORDER BY p.id DESC");
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -46,22 +42,22 @@ $data = mysqli_query($conn, "
     <?php endif; ?>
 
     <div class="table-responsive">
-        <table>
+        <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th>Peminjam</th>
-                    <th>Informasi Barang</th>
-                    <th style="text-align: center;">Lama Pinjam</th>
-                    <th style="text-align: center;">Tgl Pengajuan</th>
-                    <th style="text-align: center;">Aksi</th>
+                    <th style="text-align: left; padding: 12px;">Peminjam</th>
+                    <th style="text-align: left; padding: 12px;">Informasi Barang</th>
+                    <th style="text-align: center; padding: 12px;">Lama Pinjam</th>
+                    <th style="text-align: center; padding: 12px;">Tgl Pengajuan</th>
+                    <th style="text-align: center; padding: 12px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if(mysqli_num_rows($data) > 0): ?>
                     <?php while ($p = mysqli_fetch_assoc($data)): ?>
-                    <tr>
-                        <td style="font-weight: 600; color: #1e293b;"><?= htmlspecialchars($p['nama']); ?></td>
-                        <td>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 15px; font-weight: 600; color: #1e293b;"><?= htmlspecialchars($p['nama']); ?></td>
+                        <td style="padding: 15px;">
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <img src="../assets/img/barang/<?= $p['gambar']; ?>" width="45" height="45" style="object-fit: cover; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/679/679821.png'">
                                 <div>
@@ -72,23 +68,23 @@ $data = mysqli_query($conn, "
                                 </div>
                             </div>
                         </td>
-                        <td style="text-align: center; font-weight: 500; color: #475569;">
+                        <td style="padding: 15px; text-align: center; font-weight: 500; color: #475569;">
                             <?= $p['lama_pinjam']; ?> Hari
                         </td>
-                        <td style="text-align: center; color: #64748b; font-size: 13px;">
+                        <td style="padding: 15px; text-align: center; color: #64748b; font-size: 13px;">
                             <?= date('d/m/Y', strtotime($p['tanggal_pinjam'])); ?>
                         </td>
-                        <td>
+                        <td style="padding: 15px;">
                             <div style="display: flex; gap: 8px; justify-content: center;">
                                 <a href="proses_approval.php?id=<?= $p['id']; ?>&aksi=setuju" 
-                                   class="btn" style="background: #10b981; color: white; padding: 8px 16px; font-size: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: 0.2s; border: none; cursor: pointer;">
-                                   ✔ Setuju
+                                   class="btn" style="background: #10b981; color: white; padding: 8px 16px; font-size: 12px; border-radius: 8px; text-decoration: none; font-weight: 700;">
+                                    ✔ Setuju
                                 </a>
                                 
                                 <a href="proses_approval.php?id=<?= $p['id']; ?>&aksi=tolak" 
-                                   class="btn" style="background: #ef4444; color: white; padding: 8px 16px; font-size: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: 0.2s; border: none; cursor: pointer;"
-                                   onclick="return confirm('Apakah Anda yakin ingin menolak permintaan ini?')">
-                                   ✖ Tolak
+                                   class="btn" style="background: #ef4444; color: white; padding: 8px 16px; font-size: 12px; border-radius: 8px; text-decoration: none; font-weight: 700;"
+                                   onclick="return confirm('Tolak permintaan ini?')">
+                                    ✖ Tolak
                                 </a>
                             </div>
                         </td>
@@ -99,7 +95,7 @@ $data = mysqli_query($conn, "
                         <td colspan="5" style="text-align: center; padding: 60px; color: #94a3b8;">
                             <div style="font-size: 50px; margin-bottom: 15px;">✨</div>
                             <div style="font-weight: 600; font-size: 16px;">Semua Beres!</div>
-                            <div style="font-size: 13px;">Tidak ada permintaan peminjaman baru yang menunggu.</div>
+                            <div style="font-size: 13px;">Tidak ada permintaan baru.</div>
                         </td>
                     </tr>
                 <?php endif; ?>

@@ -1,14 +1,14 @@
 <?php
 session_start();
 include '../config/database.php';
+if (!isset($_SESSION['id'])) { header("Location: ../auth/login.php"); exit; }
 $user_id = $_SESSION['id'];
-
 $query = mysqli_query($conn, "SELECT * FROM log_aktivitas WHERE user_id = '$user_id' ORDER BY waktu DESC");
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Riwayat Aktivitas Saya</title>
+    <title>Riwayat Aktivitas</title>
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body class="dashboard-page">
@@ -16,12 +16,7 @@ $query = mysqli_query($conn, "SELECT * FROM log_aktivitas WHERE user_id = '$user
     <h2>Riwayat Aktivitas & Keamanan</h2>
     <div class="table-responsive">
         <table>
-            <thead>
-                <tr>
-                    <th>Waktu</th>
-                    <th>Aktivitas</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Waktu</th><th>Aktivitas</th></tr></thead>
             <tbody>
                 <?php while($l = mysqli_fetch_assoc($query)): ?>
                 <tr>

@@ -32,7 +32,7 @@ if (isset($_POST['register'])) {
 </head>
 <body class="auth-page"> <div class="box">
     <h2>Buat Akun</h2>
-    <p>Daftar untuk mengakses peminjaman sarpras.</p>
+    <p>Daftar untuk mengakses Peminjaman Sarpras.</p>
 
     <?php if ($error != ""): ?>
         <div class="badge badge-ditolak" style="display: block; margin-bottom: 20px; text-align: center;">
@@ -43,7 +43,7 @@ if (isset($_POST['register'])) {
     <form method="POST">
         <div class="form-group">
             <label>Nama Lengkap</label>
-            <input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
+            <input type="text" name="nama" placeholder="Masukkan Nama lengkap" required>
         </div>
 
         <div class="form-group">

@@ -1,66 +1,62 @@
 <?php
 session_start();
-include '../config/database.php'; // Tambahkan ini agar koneksi db tersedia jika butuh query
+include '../config/database.php';
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 'peminjam') { header("Location: ../auth/login.php"); exit; }
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 'peminjam') {
-    header("Location: ../auth/login.php");
-    exit;
-}
+$u_id = $_SESSION['id'];
+$cek_pinjam = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM peminjaman WHERE user_id = '$u_id' AND status = 'dipinjam'"))['total'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Peminjam - Sarpras</title>
+    <title>Peminjam Dashboard - Sarpras</title>
     <link rel="stylesheet" href="../assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
-
 <div class="box wide">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div>
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 40px;">
+        <div style="text-align: left;">
             <h2 style="margin: 0;">Halo, <?= htmlspecialchars($_SESSION['nama']); ?> 👋</h2>
-            <p style="color: #64748b;">Selamat datang di Sistem Peminjaman Sarpras.</p>
+            <p style="margin: 5px 0 0;">Butuh alat apa hari ini?</p>
         </div>
-        <span class="badge badge-menunggu" style="text-transform: uppercase;"><?= $_SESSION['role']; ?></span>
+        <div style="text-align: right;">
+            <span class="badge badge-disetujui" style="display: block; margin-bottom: 5px;">SISWA / PEMINJAM</span>
+            <?php if($cek_pinjam > 0): ?>
+                <small style="color: var(--danger); font-weight: bold;">⚠️ Kamu punya <?= $cek_pinjam; ?> alat dipinjam</small>
+            <?php endif; ?>
+        </div>
     </div>
 
-    <h4 style="margin-bottom: 15px; color: #1e3a8a;">Pilih Kategori Barang</h4>
-    <div class="menu-grid" style="margin-bottom: 30px;">
-        <a href="pinjam.php?kat=1" class="menu-card" style="border-bottom: 5px solid #3b82f6;">
-            <div style="font-size: 40px; margin-bottom: 10px;">💻</div>
-            <span style="font-weight: 700;">Barang Elektronik</span>
-            <p style="margin: 0; font-size: 12px; color: #64748b;">Laptop, Proyektor, dsb.</p>
-        </a>
-        <a href="pinjam.php?kat=2" class="menu-card" style="border-bottom: 5px solid #10b981;">
-            <div style="font-size: 40px; margin-bottom: 10px;">🪑</div>
-            <span style="font-weight: 700;">Non-Elektronik</span>
-            <p style="margin: 0; font-size: 12px; color: #64748b;">Kursi, Meja, dsb.</p>
-        </a>
-    </div>
-
-    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;">
-
-    <h4 style="margin-bottom: 15px; color: #1e3a8a;">Menu Akun & Riwayat</h4>
+    <h4 style="text-align: left; margin-bottom: 20px; color: var(--primary);">🔍 Kategori Inventaris</h4>
     <div class="menu-grid">
+        <a href="pinjam.php?kat=1" class="menu-card" style="border-top: 5px solid var(--primary-light); background: #f0f7ff;">
+            <div style="font-size: 45px; margin-bottom: 15px;">💻</div>
+            <span style="font-size: 18px;">Barang Elektronik</span>
+            <p style="margin: 10px 0 0; font-size: 12px; color: var(--text-muted);">Laptop, Proyektor, Kamera, dll.</p>
+        </a>
+        <a href="pinjam.php?kat=2" class="menu-card" style="border-top: 5px solid var(--success); background: #f0fdf4;">
+            <div style="font-size: 45px; margin-bottom: 15px;">🪑</div>
+            <span style="font-size: 18px;">Non-Elektronik</span>
+            <p style="margin: 10px 0 0; font-size: 12px; color: var(--text-muted);">Meja, Kursi, Alat Olahraga, dll.</p>
+        </a>
+    </div>
+
+    <h4 style="text-align: left; margin: 40px 0 20px; color: var(--primary);">📋 Menu Pengguna</h4>
+    <div class="menu-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
         <a href="riwayat.php" class="menu-card">
-            <div style="font-size: 24px; margin-bottom: 5px;">⏳</div>
-            <span style="font-weight: 600;">Status Pinjaman</span>
+            <div style="font-size: 25px;">⏳</div>
+            <span style="font-size: 14px;">Status & Riwayat</span>
         </a>
-
         <a href="log_peminjam.php" class="menu-card">
-            <div style="font-size: 24px; margin-bottom: 5px;">🕒</div>
-            <span style="font-weight: 600;">Aktivitas Saya</span>
+            <div style="font-size: 25px;">🕒</div>
+            <span style="font-size: 14px;">Aktivitas</span>
         </a>
-
-        <a href="../auth/logout.php" class="menu-card" style="border-left: 4px solid #ef4444;">
-            <div style="font-size: 24px; margin-bottom: 5px;">🚪</div>
-            <span style="font-weight: 600; color: #ef4444;">Keluar</span>
+        <a href="../auth/logout.php" class="menu-card" style="border-color: var(--danger); color: var(--danger);">
+            <div style="font-size: 25px;">🚪</div>
+            <span style="font-size: 14px;">Keluar</span>
         </a>
     </div>
 </div>
-
 </body>
 </html>
