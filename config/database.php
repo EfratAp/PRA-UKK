@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "ukk final";
+$db   = "sistem_peminjaman_sarpras";
 $port = 3307;
 
 $conn = mysqli_connect($host, $user, $pass, $db, $port);

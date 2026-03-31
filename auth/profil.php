@@ -86,7 +86,7 @@ if (isset($_POST['update_profil'])) {
     </form>
 
     <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
-        <a href="javascript:history.back()" class="btn btn-outline" style="width: 100%; text-align: center; display: block;">Kembali ke Dashboard</a>
+        <a href="../admin/dashboard.php" class="btn btn-outline" style="width: 100%; text-align: center; display: block;">Kembali ke Dashboard</a>
     </div>
 </div>
 

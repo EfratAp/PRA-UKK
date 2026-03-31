@@ -93,10 +93,13 @@ $query = mysqli_query($conn, "SELECT p.*, u.nama, b.nama_barang, b.gambar
                                    class="btn" style="background: #10b981; color: white; font-size: 11px; padding: 8px 12px; text-decoration: none; border-radius: 6px;">✅ Bagus</a>
                                 
                                 <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=ringan" 
-                                   class="btn" style="background: #f59e0b; color: white; font-size: 11px; padding: 8px 12px; text-decoration: none; border-radius: 6px;">⚠️ Ringan</a>
+                                   class="btn" style="background: #f59e0b; color: white; font-size: 11px; padding: 8px 12px; text-decoration: none; border-radius: 6px;">💸 Ringan</a>
+
+                                <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=sedang" 
+                                   class="btn" style="background: #ac2727; color: white; font-size: 11px; padding: 8px 12px; text-decoration: none; border-radius: 6px;">⚠️ Sedang</a>
 
                                 <a href="proses_verifikasi.php?id=<?= $p['id']; ?>&kondisi=berat" 
-                                   class="btn" style="background: #ef4444; color: white; font-size: 11px; padding: 8px 12px; text-decoration: none; border-radius: 6px;"
+                                   class="btn" style="background: #ff0000; color: white; font-size: 11px; padding: 8px 12px; text-decoration: none; border-radius: 6px;"
                                    onclick="return confirm('Rusak berat akan dikenakan denda maksimal. Lanjutkan?')">💀 Berat</a>
                             </div>
                         </td>

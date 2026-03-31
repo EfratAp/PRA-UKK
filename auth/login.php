@@ -46,7 +46,7 @@ if (isset($_POST['login'])) {
 <body class="auth-page">
 
 <div class="box">
-    <h2>Login Sarpras</h2>
+    <h2>Login Sarpras Telkom</h2>
     <p>Masuk untuk mengelola Peminjaman Barang</p>
 
     <?php if ($error != "") : ?>

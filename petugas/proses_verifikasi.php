@@ -30,6 +30,8 @@ if (isset($_GET['id']) && isset($_GET['kondisi'])) {
         // --- A. HITUNG DENDA FISIK ---
         if ($kondisi == 'ringan') {
             $denda_fisik = ($harga_asli * 0.10) * $jumlah; // 10% dari harga asli
+        } elseif ($kondisi == 'sedang') {
+            $denda_fisik = ($harga_asli * 0.40) * $jumlah; // 40% dari harga asli
         } elseif ($kondisi == 'berat') {
             $denda_fisik = $harga_asli * $jumlah; // 100% harga asli
         }
